@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B2C3D4E5-F6A7-8901-BCDE-F12345678901}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BinaryKits.Zpl.Viewer</RootNamespace>
+    <AssemblyName>BinaryKits.Zpl.Viewer</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\portable-net40+sl4+win8+wp8\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="zxing">
+      <HintPath>..\..\packages\ZXing.Net.0.16.4\lib\net40\zxing.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BinaryKits.Zpl.Label\BinaryKits.Zpl.Label.csproj">
+      <Project>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</Project>
+      <Name>BinaryKits.Zpl.Label</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <!-- Root level -->
+    <Compile Include="FontManager.cs" />
+    <Compile Include="FormatMerger.cs" />
+    <Compile Include="IFormatMerger.cs" />
+    <Compile Include="IPrinterStorage.cs" />
+    <Compile Include="IZplAnalyzer.cs" />
+    <Compile Include="PrinterStorage.cs" />
+    <Compile Include="VirtualPrinter.cs" />
+    <Compile Include="ZplAnalyzer.cs" />
+    <Compile Include="ZplElementDrawer.cs" />
+    <!-- CommandAnalyzers -->
+    <Compile Include="CommandAnalyzers\IZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\ZplCommandAnalyzerBase.cs" />
+    <Compile Include="CommandAnalyzers\AnsiCodabarBarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\AztecBarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\BarCodeFieldDefaultZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\ChangeAlphanumericDefaultFontZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\ChangeInternationalFontCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\Code128BarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\Code39BarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\Code93BarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\CodeEAN13BarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\CommentZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\DataMatrixZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\DownloadFormatCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\DownloadGraphicsZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\DownloadObjectsZplCommandAnaylzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldBlockZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldDataZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldHexadecimalZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldNumberCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldOrientationZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldOriginZplCommandAnalzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldReversePrintZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldSeparatorZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldTypesetZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\FieldVarialbleZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicBoxZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicCircleZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicDiagonalLineZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicEllipseZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicFieldZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\GraphicSymbolZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\ImageMoveZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\Interleaved2of5BarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\LabelHomeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\LabelReversePrintZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\MaxiCodeBarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\PDF417BarcodeCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\QrCodeBarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\RecallFormatCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\RecallGraphicZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\ScalableBitmappedFontZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\UpcABarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\UpcEBarcodeZplCommandAnalyzer.cs" />
+    <Compile Include="CommandAnalyzers\UpcExtensionBarcodeZplCommandAnalyzer.cs" />
+    <!-- ElementDrawers -->
+    <Compile Include="ElementDrawers\IElementDrawer.cs" />
+    <Compile Include="ElementDrawers\DrawerOptions.cs" />
+    <Compile Include="ElementDrawers\ElementDrawerBase.cs" />
+    <Compile Include="ElementDrawers\BarcodeDrawerBase.cs" />
+    <Compile Include="ElementDrawers\AztecBarcodeElementDrawer.cs" />
+    <Compile Include="ElementDrawers\Barcode128ElementDrawer.cs" />
+    <Compile Include="ElementDrawers\Barcode39ElementDrawer.cs" />
+    <Compile Include="ElementDrawers\Barcode93ElementDrawer.cs" />
+    <Compile Include="ElementDrawers\BarcodeAnsiCodabarElementDrawer.cs" />
+    <Compile Include="ElementDrawers\BarcodeEAN13ElementDrawer.cs" />
+    <Compile Include="ElementDrawers\BarcodeUpcAElementDrawer.cs" />
+    <Compile Include="ElementDrawers\BarcodeUpcEElementDrawer.cs" />
+    <Compile Include="ElementDrawers\BarcodeUpcExtensionElementDrawer.cs" />
+    <Compile Include="ElementDrawers\DataMatrixElementDrawer.cs" />
+    <Compile Include="ElementDrawers\FieldBlockElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicBoxElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicCircleElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicDiagonalLineElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicEllipseElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicFieldElementDrawer.cs" />
+    <Compile Include="ElementDrawers\GraphicSymbolElementDrawer.cs" />
+    <Compile Include="ElementDrawers\ImageMoveElementDrawer.cs" />
+    <Compile Include="ElementDrawers\Interleaved2of5BarcodeDrawer.cs" />
+    <Compile Include="ElementDrawers\MaxiCodeElementDrawer.cs" />
+    <Compile Include="ElementDrawers\PDF417ElementDrawer.cs" />
+    <Compile Include="ElementDrawers\QrCodeElementDrawer.cs" />
+    <Compile Include="ElementDrawers\RecallGraphicElementDrawer.cs" />
+    <Compile Include="ElementDrawers\TextFieldElementDrawer.cs" />
+    <!-- Helpers -->
+    <Compile Include="Helpers\FontScale.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
+    <Compile Include="Helpers\UnitsHelper.cs" />
+    <!-- Models -->
+    <Compile Include="Models\AnalyzeInfo.cs" />
+    <Compile Include="Models\AnsiCodabarFieldData.cs" />
+    <Compile Include="Models\AztecBarcodeFieldData.cs" />
+    <Compile Include="Models\BarcodeInfo.cs" />
+    <Compile Include="Models\Code128BarcodeFieldData.cs" />
+    <Compile Include="Models\Code39BarcodeFieldData.cs" />
+    <Compile Include="Models\Code93BarcodeFieldData.cs" />
+    <Compile Include="Models\CodeEAN13BarcodeFieldData.cs" />
+    <Compile Include="Models\DataMatrixFieldData.cs" />
+    <Compile Include="Models\FieldBlock.cs" />
+    <Compile Include="Models\FieldDataBase.cs" />
+    <Compile Include="Models\FontInfo.cs" />
+    <Compile Include="Models\GraphicSymbolFieldData.cs" />
+    <Compile Include="Models\Interleaved2of5BarcodeFieldData.cs" />
+    <Compile Include="Models\LabelHome.cs" />
+    <Compile Include="Models\LabelInfo.cs" />
+    <Compile Include="Models\LabelPosition.cs" />
+    <Compile Include="Models\MaxiCodeBarcodeFieldData.cs" />
+    <Compile Include="Models\PDF417FieldData.cs" />
+    <Compile Include="Models\QrCodeBarcodeFieldData.cs" />
+    <Compile Include="Models\UpcABarcodeFieldData.cs" />
+    <Compile Include="Models\UpcEBarcodeFieldData.cs" />
+    <Compile Include="Models\UpcExtensionBarcodeFieldData.cs" />
+    <!-- Symologies -->
+    <Compile Include="Symologies\MaxiCodeSymbology.cs" />
+    <Compile Include="Symologies\UpcExtensionSymbology.cs" />
+    <Compile Include="Symologies\ZplCode128Symbology.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
+

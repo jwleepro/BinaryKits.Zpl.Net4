@@ -1,0 +1,162 @@
+using BinaryKits.Zpl.Label;
+using BinaryKits.Zpl.Label.Elements;
+
+using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+
+namespace BinaryKits.Zpl.Viewer.ElementDrawers
+{
+    public class GraphicBoxElementDrawer : ElementDrawerBase
+    {
+        ///<inheritdoc/>
+        public override bool CanDraw(ZplElementBase element)
+        {
+            return element is ZplGraphicBox;
+        }
+
+        public override bool IsReverseDraw(ZplElementBase element)
+        {
+            if (element is ZplGraphicBox graphicBox)
+            {
+                return graphicBox.ReversePrint;
+            }
+
+            return false;
+        }
+
+        public override bool IsWhiteDraw(ZplElementBase element)
+        {
+            if (element is ZplGraphicBox graphicBox)
+            {
+                return graphicBox.LineColor == LineColor.White;
+            }
+
+            return false;
+        }
+
+        public override bool ForceBitmapDraw(ZplElementBase element)
+        {
+            if (element is ZplGraphicBox graphicBox && graphicBox.CornerRounding > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        ///<inheritdoc/>
+        public override PointF Draw(ZplElementBase element, DrawerOptions options, PointF currentPosition, InternationalFont internationalFont)
+        {
+            if (element is ZplGraphicBox graphicBox)
+            {
+                int border1 = graphicBox.BorderThickness;
+                int width1 = graphicBox.Width;
+                int height1 = graphicBox.Height;
+
+                if (border1 > width1)
+                {
+                    width1 = border1;
+                }
+
+                if (border1 > height1)
+                {
+                    height1 = border1;
+                }
+
+                //border cant be bigger or equal to width or height
+                if (border1 > width1 / 2 && width1 <= height1)
+                {
+                    border1 = (int)Math.Ceiling((float)width1 / 2);
+                }
+
+                if (border1 > height1 / 2 && height1 <= width1)
+                {
+                    border1 = (int)Math.Ceiling((float)height1 / 2);
+                }
+
+                //make sure border is never smaller than 1
+                if (border1 < 1)
+                {
+                    border1 = 1;
+                }
+
+                float baseX = graphicBox.PositionX;
+                float baseY = graphicBox.PositionY;
+
+                if (graphicBox.UseDefaultPosition)
+                {
+                    baseX = currentPosition.X;
+                    baseY = currentPosition.Y;
+                }
+
+                //if the border is thick, the rounding is off, so we need to build that for each increment
+                int lastPrintedBorder = border1;
+                for (int border2 = border1; border2 >= 1; border2--)
+                {
+                    //skip the parts that have overlap from the previous draw
+                    if (border2 != 1 && border2 != lastPrintedBorder && border2 > lastPrintedBorder / 2)
+                    {
+                        continue;
+                    }
+
+                    lastPrintedBorder = border2;
+
+                    float offsetX = border2 / 2.0f;
+                    float offsetY = border2 / 2.0f;
+
+                    float x = baseX + offsetX;
+                    float y = baseY + offsetY;
+
+                    if (graphicBox.FieldTypeset != null)
+                    {
+                        y -= height1;
+
+                        //Fallback
+                        if (y < offsetY)
+                        {
+                            y = offsetY;
+                        }
+                    }
+
+                    int width = width1 - border2;
+                    int height = height1 - border2;
+
+                    Color drawColor = graphicBox.LineColor == LineColor.White ? Color.White : Color.Black;
+
+                    using (Pen pen = new Pen(drawColor, border2))
+                    {
+                        float cornerRadius = (graphicBox.CornerRounding / 8.0f) * (Math.Min(width1, height1) / 2.0f);
+
+                        if (cornerRadius == 0)
+                        {
+                            this.graphics.DrawRectangle(pen, x, y, width, height);
+                            return this.CalculateNextDefaultPosition(baseX, baseY, width1, height1, graphicBox.FieldOrigin != null, FieldOrientation.Normal, currentPosition);
+                        }
+
+                        DrawRoundedRectangle(this.graphics, pen, x, y, width, height, cornerRadius);
+                    }
+                }
+
+                // Calculate next position based on box dimensions
+                return this.CalculateNextDefaultPosition(baseX, baseY, width1, height1, graphicBox.FieldOrigin != null, FieldOrientation.Normal, currentPosition);
+            }
+
+            return currentPosition;
+        }
+
+        private static void DrawRoundedRectangle(Graphics g, Pen pen, float x, float y, float width, float height, float radius)
+        {
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                float diameter = radius * 2;
+                path.AddArc(x, y, diameter, diameter, 180, 90);
+                path.AddArc(x + width - diameter, y, diameter, diameter, 270, 90);
+                path.AddArc(x + width - diameter, y + height - diameter, diameter, diameter, 0, 90);
+                path.AddArc(x, y + height - diameter, diameter, diameter, 90, 90);
+                path.CloseFigure();
+                g.DrawPath(pen, path);
+            }
+        }
+    }
+}

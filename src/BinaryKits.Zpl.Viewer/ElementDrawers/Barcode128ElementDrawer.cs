@@ -1,0 +1,103 @@
+﻿using BinaryKits.Zpl.Label;
+using BinaryKits.Zpl.Label.Elements;
+using BinaryKits.Zpl.Viewer.Helpers;
+using BinaryKits.Zpl.Viewer.Symologies;
+
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+
+namespace BinaryKits.Zpl.Viewer.ElementDrawers
+{
+    /// <summary>
+    /// Drawer for Code 128 Barcode elements
+    /// </summary>
+    public class Barcode128ElementDrawer : BarcodeDrawerBase
+    {
+        ///<inheritdoc/>
+        public override bool CanDraw(ZplElementBase element)
+        {
+            return element is ZplBarcode128;
+        }
+
+        ///<inheritdoc/>
+        public override PointF Draw(ZplElementBase element, DrawerOptions options, PointF currentPosition, InternationalFont internationalFont, int printDensityDpmm)
+        {
+            if (element is ZplBarcode128 barcode)
+            {
+                string content = barcode.Content;
+                if (barcode.HexadecimalIndicator is char hexIndicator)
+                {
+                    content = content.ReplaceHexEscapes(hexIndicator, internationalFont);
+                }
+
+                Code128CodeSet codeSet = Code128CodeSet.Code128B;
+                bool gs1 = false;
+                if (string.IsNullOrEmpty(barcode.Mode) || barcode.Mode == "N")
+                {
+                    codeSet = Code128CodeSet.Code128B;
+                }
+                else if (barcode.Mode == "A")
+                {
+                    codeSet = Code128CodeSet.Code128;
+                }
+                else if (barcode.Mode == "D")
+                {
+                    codeSet = Code128CodeSet.Code128;
+                    gs1 = true;
+                }
+                else if (barcode.Mode == "U")
+                {
+                    codeSet = Code128CodeSet.Code128C;
+                    content = content.PadLeft(19, '0').Substring(0, 19);
+                    int checksum = 0;
+                    for (int i = 0; i < 19; i++)
+                    {
+                        checksum += (content[i] - 48) * (i % 2 * 2 + 7);
+                    }
+
+                    content = $">8{content}{checksum % 10}";
+                }
+
+                float x = barcode.PositionX;
+                float y = barcode.PositionY;
+
+                if (barcode.UseDefaultPosition)
+                {
+                    x = currentPosition.X;
+                    y = currentPosition.Y;
+                }
+
+                (bool[] data, string interpretation) = ZplCode128Symbology.Encode(content, codeSet, gs1);
+                using (Bitmap resizedImage = BoolArrayToBitmap(data, barcode.Height, barcode.ModuleWidth))
+                {
+                    byte[] png;
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        resizedImage.Save(ms, ImageFormat.Png);
+                        png = ms.ToArray();
+                    }
+
+                    this.DrawBarcode(png, x, y, resizedImage.Width, resizedImage.Height, barcode.FieldOrigin != null, barcode.FieldOrientation);
+
+                    if (barcode.PrintInterpretationLine)
+                    {
+                        // TODO: use font 0, auto scale for Mode D
+                        float labelFontSize = FontScale.GetBitmappedFontSize("A", Math.Min(barcode.ModuleWidth, 10), printDensityDpmm).Value;
+                        Font labelTypeface = options.FontManager.FontLoader("A");
+                        using (Font labelFont = new Font(labelTypeface.FontFamily, labelFontSize, labelTypeface.Style))
+                        {
+                            this.DrawInterpretationLine(interpretation, labelFont, x, y, resizedImage.Width, resizedImage.Height, barcode.FieldOrigin != null, barcode.FieldOrientation, barcode.PrintInterpretationLineAboveCode, options);
+                        }
+                    }
+
+                    return this.CalculateNextDefaultPosition(x, y, resizedImage.Width, resizedImage.Height, barcode.FieldOrigin != null, barcode.FieldOrientation, currentPosition);
+                }
+            }
+
+            return currentPosition;
+        }
+
+    }
+}

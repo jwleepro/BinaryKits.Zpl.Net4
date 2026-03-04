@@ -1,0 +1,94 @@
+using BinaryKits.Zpl.Label;
+using BinaryKits.Zpl.Label.Elements;
+using BinaryKits.Zpl.Viewer.Helpers;
+
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Text.RegularExpressions;
+
+using ZXing;
+using ZXing.Common;
+using ZXing.Datamatrix;
+using ZXing.Datamatrix.Encoder;
+
+namespace BinaryKits.Zpl.Viewer.ElementDrawers
+{
+    /// <summary>
+    /// Drawer for Data Matrix Barcode elements
+    /// </summary>
+    public class DataMatrixElementDrawer : BarcodeDrawerBase
+    {
+        private static readonly Regex gs1Regex = new Regex(@"^_1(.+)$", RegexOptions.Compiled);
+
+        ///<inheritdoc/>
+        public override bool CanDraw(ZplElementBase element)
+        {
+            return element is ZplDataMatrix;
+        }
+
+        ///<inheritdoc/>
+        public override PointF Draw(ZplElementBase element, DrawerOptions options, PointF currentPosition, InternationalFont internationalFont)
+        {
+            if (element is ZplDataMatrix dataMatrix)
+            {
+                if (dataMatrix.Height == 0)
+                {
+                    throw new System.Exception("Matrix Height is set to zero.");
+                }
+
+                if (string.IsNullOrWhiteSpace(dataMatrix.Content))
+                {
+                    throw new System.Exception("Matrix Content is empty.");
+                }
+
+                float x = dataMatrix.PositionX;
+                float y = dataMatrix.PositionY;
+
+                if (dataMatrix.UseDefaultPosition)
+                {
+                    x = currentPosition.X;
+                    y = currentPosition.Y;
+                }
+
+                string content = dataMatrix.Content;
+                if (dataMatrix.HexadecimalIndicator is char hexIndicator)
+                {
+                    content = content.ReplaceHexEscapes(hexIndicator, internationalFont);
+                }
+
+                // support hand-rolled GS1
+                bool gs1Mode = false;
+                Match gs1Match = gs1Regex.Match(content);
+                if (gs1Match.Success)
+                {
+                    content = gs1Match.Groups[1].Value;
+                    gs1Mode = true;
+                }
+
+                DataMatrixWriter writer = new DataMatrixWriter();
+                DatamatrixEncodingOptions encodingOptions = new DatamatrixEncodingOptions()
+                {
+                    SymbolShape = SymbolShapeHint.FORCE_SQUARE,
+                    GS1Format = gs1Mode
+                };
+                BitMatrix result = writer.encode(content, BarcodeFormat.DATA_MATRIX, 0, 0, encodingOptions.Hints);
+
+                using (Bitmap resizedImage = BitMatrixToBitmap(result, dataMatrix.Height))
+                {
+                    byte[] png;
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        resizedImage.Save(ms, ImageFormat.Png);
+                        png = ms.ToArray();
+                    }
+
+                    this.DrawBarcode(png, x, y, resizedImage.Width, resizedImage.Height, dataMatrix.FieldOrigin != null, dataMatrix.FieldOrientation);
+                    return this.CalculateNextDefaultPosition(x, y, resizedImage.Width, resizedImage.Height, dataMatrix.FieldOrigin != null, dataMatrix.FieldOrientation, currentPosition);
+                }
+            }
+
+            return currentPosition;
+        }
+    }
+}
